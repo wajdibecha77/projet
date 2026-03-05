@@ -69,11 +69,15 @@ const deviceHashFromReq = (req) => {
 };
 
 const smtpTransporter = () => {
-  const smtpHost = process.env.SMTP_HOST;
+  const smtpHost = String(process.env.SMTP_HOST || "").trim();
   const smtpPort = Number(process.env.SMTP_PORT || 587);
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const smtpUser = String(process.env.SMTP_USER || "").trim();
+  const smtpPass = String(process.env.SMTP_PASS || "").replace(/\s+/g, "");
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
+  const smtpSecure =
+    String(process.env.SMTP_SECURE || "").toLowerCase() === "true"
+      ? true
+      : smtpPort === 465;
 
   if (!smtpHost || !smtpUser || !smtpPass) {
     throw new Error("Configuration SMTP manquante (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS).");
@@ -82,11 +86,23 @@ const smtpTransporter = () => {
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465,
+    secure: smtpSecure,
     auth: { user: smtpUser, pass: smtpPass },
   });
 
   return { transporter, smtpFrom };
+};
+
+const throwSmtpCredentialError = (error) => {
+  if (
+    error?.responseCode === 535 ||
+    String(error?.message || "").includes("BadCredentials")
+  ) {
+    throw new Error(
+      "Identifiants SMTP invalides. Pour Gmail, activez la validation en 2 etapes et utilisez un App Password dans SMTP_PASS."
+    );
+  }
+  throw error;
 };
 
 const signJwt = (user) => {
@@ -146,36 +162,44 @@ const reverseGeocodeOSM = (lat, lng) =>
 // -------------------- emails --------------------
 const sendResetCodeEmail = async (toEmail, code) => {
   const { transporter, smtpFrom } = smtpTransporter();
-  await transporter.sendMail({
-    from: smtpFrom,
-    to: toEmail,
-    subject: "Code de réinitialisation du mot de passe",
-    text:
-      "Bonjour,\n\n" +
-      "Votre code de réinitialisation est : " +
-      code +
-      "\n\n" +
-      "Ce code expire dans " +
-      CODE_EXPIRE_MINUTES +
-      " minutes.\n",
-  });
+  try {
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: toEmail,
+      subject: "Code de réinitialisation du mot de passe",
+      text:
+        "Bonjour,\n\n" +
+        "Votre code de réinitialisation est : " +
+        code +
+        "\n\n" +
+        "Ce code expire dans " +
+        CODE_EXPIRE_MINUTES +
+        " minutes.\n",
+    });
+  } catch (error) {
+    throwSmtpCredentialError(error);
+  }
 };
 
 const sendLoginOtpEmail = async (toEmail, code) => {
   const { transporter, smtpFrom } = smtpTransporter();
-  await transporter.sendMail({
-    from: smtpFrom,
-    to: toEmail,
-    subject: "Code de sécurité (connexion)",
-    text:
-      "Bonjour,\n\n" +
-      "Votre code de sécurité est : " +
-      code +
-      "\n\n" +
-      "Ce code expire dans " +
-      LOGIN_OTP_EXPIRE_MINUTES +
-      " minutes.\n",
-  });
+  try {
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: toEmail,
+      subject: "Code de sécurité (connexion)",
+      text:
+        "Bonjour,\n\n" +
+        "Votre code de sécurité est : " +
+        code +
+        "\n\n" +
+        "Ce code expire dans " +
+        LOGIN_OTP_EXPIRE_MINUTES +
+        " minutes.\n",
+    });
+  } catch (error) {
+    throwSmtpCredentialError(error);
+  }
 };
 
 const sendNewLoginAlertEmail = async ({ toEmail, approveUrl, denyUrl, details }) => {
@@ -290,7 +314,7 @@ module.exports = {
       await PasswordResetToken.updateMany({ email: normalizedEmail, used: false }, { $set: { used: true } });
       await PasswordResetToken.create({ email: normalizedEmail, code, expiresAt, used: false });
 
-      await sendResetCodeEmail(normalizedEmail, code);
+      await sendResetCodeEmail(normalizeEmail(user.email), code);
 
       await Notification.create({
         title: "Réinitialisation mot de passe",
@@ -613,3 +637,4 @@ module.exports = {
     }
   },
 };
+

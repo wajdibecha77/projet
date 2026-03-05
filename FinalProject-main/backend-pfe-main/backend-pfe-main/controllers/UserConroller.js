@@ -16,11 +16,15 @@ const generateOtpCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
 const sendOtpEmail = async (toEmail, otpCode) => {
-  const smtpHost = process.env.SMTP_HOST;
+  const smtpHost = String(process.env.SMTP_HOST || "").trim();
   const smtpPort = Number(process.env.SMTP_PORT || 587);
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const smtpUser = String(process.env.SMTP_USER || "").trim();
+  const smtpPass = String(process.env.SMTP_PASS || "").replace(/\s+/g, "");
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
+  const smtpSecure =
+    String(process.env.SMTP_SECURE || "").toLowerCase() === "true"
+      ? true
+      : smtpPort === 465;
 
   if (!smtpHost || !smtpUser || !smtpPass) {
     throw new Error(
@@ -31,7 +35,7 @@ const sendOtpEmail = async (toEmail, otpCode) => {
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465,
+    secure: smtpSecure,
     auth: {
       user: smtpUser,
       pass: smtpPass,
