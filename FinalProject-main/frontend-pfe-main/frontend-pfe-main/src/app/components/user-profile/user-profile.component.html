@@ -1,0 +1,99 @@
+<div class="main-content-header">
+    <h1>Dashboard</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a routerLink="/dashboard-sales">Utilisateur</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <span class="active">Profile</span>
+        </li>
+    </ol>
+</div>
+<!-- End Main Content Header -->
+
+<!-- Vertical Form -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card mb-30">
+            <div class="card-body">
+                <div class="card-header">
+                    <h5 class="card-title">Bienvenue {{ account.name }}</h5>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-3">
+                        <img
+                            src="assets/img/avatar.png"
+                            height="200"
+                            width="200"
+                        />
+                    </div>
+                    <div class="col-xl-9">
+                        <form>
+                            <div class="form-group">
+                                <label> Nom et prénom </label>
+                                <input
+                                    [disabled]="account.role != 'ADMIN'"
+                                    type="text"
+                                    name="name"
+                                    [value]="account.name"
+                                    [(ngModel)]="account.name"
+                                    type="text"
+                                    class="form-control"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label> Role : </label>
+                                {{ account.role }}
+                            </div>
+                            <div class="form-group">
+                                <label> Email address </label>
+                                <input
+                                    [disabled]="account.role != 'ADMIN'"
+                                    type="text"
+                                    name="email"
+                                    [value]="account.email"
+                                    [(ngModel)]="account.email"
+                                    type="text"
+                                    class="form-control"
+                                />
+                            </div>
+                            <div
+                                class="form-group"
+                                *ngIf="account.role == 'ADMIN'"
+                            >
+                                <label> Change mot de passe </label>
+                                <input
+                                    [disabled]="account.role != 'ADMIN'"
+                                    name="password"
+                                    [(ngModel)]="account.password"
+                                    type="password"
+                                    class="form-control"
+                                />
+                            </div>
+
+                            <div class="form-group w-100">
+                                <span
+                                    *ngIf="successMsg"
+                                    class="alert alert-success"
+                                >
+                                    {{ successMsg }}
+                                </span>
+                            </div>
+
+                            <button
+                                *ngIf="account.role == 'ADMIN'"
+                                type="submit"
+                                class="btn btn-primary"
+                                (click)="update()"
+                            >
+                                Modifier
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

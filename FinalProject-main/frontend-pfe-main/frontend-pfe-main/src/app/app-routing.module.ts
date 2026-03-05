@@ -1,0 +1,73 @@
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
+
+import { SignupComponent } from "./template/dashboards/auth/signup/signup.component";
+import { SigninComponent } from "./template/dashboards/auth/signin/signin.component";
+import { ForgotPasswordComponent } from "./template/dashboards/auth/forgot-password/forgot-password.component";
+import { ForgotPasswordVerifyComponent } from "./template/dashboards/auth/forgot-password-verify/forgot-password-verify.component";
+import { ForgotPasswordResetComponent } from "./template/dashboards/auth/forgot-password-reset/forgot-password-reset.component";
+
+import { DashboardComponent } from "./components/dashboard/dashboard.component";
+import { DashboardClientComponent } from "./components/dashboard-client/dashboard-client.component";
+import { ListingUsersComponent } from "./components/listing-users/listing-users.component";
+import { ListingInterventionsComponent } from "./components/listing-interventions/listing-interventions.component";
+import { ListingServicesComponent } from "./components/listing-services/listing-services.component";
+import { ListingFournisseursComponent } from "./components/listing-fournisseurs/listing-fournisseurs.component";
+import { ListingOrdersComponent } from "./components/listing-orders/listing-orders.component";
+import { CreateUserComponent } from "./components/create-user/create-user.component";
+import { UserProfileComponent } from "./components/user-profile/user-profile.component";
+import { NotificationsComponent } from "./template/dashboards/others/notifications/notifications.component";
+import { MesInterventionsComponent } from "./components/mes-interventions/mes-interventions.component";
+import { CreateServiceComponent } from "./components/create-service/create-service.component";
+import { CreateFournisseurComponent } from "./components/create-fournisseur/create-fournisseur.component";
+import { CreateOrderComponent } from "./components/create-order/create-order.component";
+import { CreateInterventionComponent } from "./components/create-intervention/create-intervention.component";
+import { InterventionDetailsComponent } from "./components/intervention-details/intervention-details.component";
+import { CreateOrderInterventionComponent } from "./components/create-order-intervention/create-order-intervention.component";
+import { AuthGuard } from "./guards/auth.guard";
+
+const routes: Routes = [
+  { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
+  { path: "login", redirectTo: "/auth/signin", pathMatch: "full" },
+
+  { path: "dashboard", component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: "dashboard-client", component: DashboardClientComponent, canActivate: [AuthGuard] },
+  { path: "users", component: ListingUsersComponent, canActivate: [AuthGuard] },
+  { path: "interventions", component: ListingInterventionsComponent, canActivate: [AuthGuard] },
+  { path: "mes-interventions", component: MesInterventionsComponent, canActivate: [AuthGuard] },
+  { path: "intervention/:id", component: InterventionDetailsComponent, canActivate: [AuthGuard] },
+  { path: "services", component: ListingServicesComponent, canActivate: [AuthGuard] },
+  { path: "fournisseurs", component: ListingFournisseursComponent, canActivate: [AuthGuard] },
+  { path: "commandes", component: ListingOrdersComponent, canActivate: [AuthGuard] },
+  { path: "create-user", component: CreateUserComponent, canActivate: [AuthGuard] },
+  { path: "create-user/:id", component: CreateUserComponent, canActivate: [AuthGuard] },
+  { path: "create-intervention", component: CreateInterventionComponent, canActivate: [AuthGuard] },
+  { path: "create-service", component: CreateServiceComponent, canActivate: [AuthGuard] },
+  { path: "create-service/:id", component: CreateServiceComponent, canActivate: [AuthGuard] },
+  { path: "create-fournisseur", component: CreateFournisseurComponent, canActivate: [AuthGuard] },
+  { path: "create-fournisseur/:id", component: CreateFournisseurComponent, canActivate: [AuthGuard] },
+  { path: "create-order", component: CreateOrderComponent, canActivate: [AuthGuard] },
+  { path: "create-order/:id", component: CreateOrderComponent, canActivate: [AuthGuard] },
+  { path: "create-order-intervention/:id", component: CreateOrderInterventionComponent, canActivate: [AuthGuard] },
+  { path: "user-profile", component: UserProfileComponent, canActivate: [AuthGuard] },
+  { path: "notifications", component: NotificationsComponent, canActivate: [AuthGuard] },
+
+  {
+    path: "auth",
+    children: [
+      { path: "signup", component: SignupComponent },
+      { path: "signin", component: SigninComponent },
+      { path: "forgot-password", component: ForgotPasswordComponent },
+      { path: "forgot-password/verify", component: ForgotPasswordVerifyComponent },
+      { path: "forgot-password/reset", component: ForgotPasswordResetComponent },
+    ],
+  },
+
+  { path: "**", redirectTo: "/auth/signin" },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}

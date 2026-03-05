@@ -1,0 +1,25 @@
+<!-- Side Menu -->
+<div class="sidemenu-area default">
+    <nav class="sidemenu navbar navbar-expand navbar-light">
+        <div class="navbar-collapse collapse">
+            <div class="navbar-nav">
+                <ng-container *ngFor="let item of sidebarItems">
+                    <a
+                        *ngIf="item.title"
+                        class="nav-link"
+                        [routerLink]="item.path"
+                        routerLinkActive="active"
+                    >
+                        <i [attr.data-feather]="item.icon" class="icon"></i>
+                        <span class="title ml-3">{{ item.title }}</span>
+                    </a>
+                </ng-container>
+            </div>
+        </div>
+        <a class="nav-link fixed-bottom" (click)="logout()">
+            <i data-feather="log-out" class="icon"></i>
+            <span class="title ml-3">Logout</span>
+        </a>
+    </nav>
+</div>
+<!-- End Side Menu -->

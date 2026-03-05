@@ -1,0 +1,47 @@
+<ng-container *ngIf="isAuthRoute(); else appLayout">
+    <router-outlet></router-outlet>
+</ng-container>
+
+<ng-template #appLayout>
+    <ng-container *ngIf="role != 'EMPLOYEE'; else employeeLayout">
+        <app-navbar></app-navbar>
+        <app-sidebar></app-sidebar>
+
+        <div class="main-content d-flex flex-column">
+            <router-outlet></router-outlet>
+        </div>
+    </ng-container>
+
+    <ng-template #employeeLayout>
+        <app-navbar></app-navbar>
+
+        <div class="d-flex flex-row">
+            <div
+                class="mt-5 crd card d-flex flex-column justify-content-center align-items-center"
+            >
+                <img
+                    src="assets/img/avatar.png"
+                    class="mb-4"
+                    height="180"
+                    width="180"
+                />
+                <span class="mb-4">
+                    <strong> Nom et prénom : </strong> {{ account.name }}
+                </span>
+                <span class="mb-4">
+                    <strong> Email : </strong> {{ account.email }}
+                </span>
+            </div>
+
+            <div class="padding-none w-100">
+                <div class="main-content d-flex flex-column">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <app-footer></app-footer>
+</ng-template>
+
+<notifier-container></notifier-container>

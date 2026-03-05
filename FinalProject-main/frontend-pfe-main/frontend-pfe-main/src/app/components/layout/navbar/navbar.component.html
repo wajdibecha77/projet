@@ -1,0 +1,79 @@
+<!-- Top Navbar -->
+<nav class="navbar navbar-expand fixed-top top-menu">
+    <a class="navbar-brand">
+        <!-- Large logo -->
+        <img
+            src="assets/img/Logo.png"
+            alt="Logo"
+            class="large-logo"
+            height="45"
+        />
+
+        <!-- Small logo -->
+        <img src="assets/img/Logo.png" alt="Small Logo" class="small-logo" />
+    </a>
+
+    <!-- Burger menu -->
+    <!--  <div class="burger-menu toggle-menu">
+        <span class="top-bar"></span>
+        <span class="middle-bar"></span>
+        <span class="bottom-bar"></span>
+    </div>
+ -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Mega Menu -->
+
+        <!-- Search form -->
+        <!--   <form class="nav-search-form d-none d-sm-block">
+            <input type="text" class="form-control" placeholder="Search..." />
+            <button type="submit" class="search-success">
+                <i data-feather="search" class="icon"></i>
+            </button>
+        </form>
+ -->
+        <!-- Right nav -->
+        <ul class="navbar-nav right-nav ml-auto">
+            <!-- Email Notification dropdown -->
+
+            <!-- Profile dropdown -->
+            <li class="nav-item dropdown profile-nav-item">
+                <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                >
+                    <div class="menu-profile">
+                        <span class="name" *ngIf="account">{{
+                            account.name
+                        }}</span>
+                        <img
+                            src="assets/img/profile.jpg"
+                            alt="Profile Image"
+                            class="rounded-circle"
+                        />
+                    </div>
+                </a>
+
+                <div class="dropdown-menu">
+                    <a
+                        class="dropdown-item"
+                        routerLinkActive="active"
+                        routerLink="/user-profile"
+                    >
+                        <i data-feather="user" class="icon"></i>
+                        Profile
+                    </a>
+
+                    <a class="dropdown-item" (click)="logout()">
+                        <i data-feather="log-out" class="icon"></i>
+                        Logout
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- End Top Navbar -->

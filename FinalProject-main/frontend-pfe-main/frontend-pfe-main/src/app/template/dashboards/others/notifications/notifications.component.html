@@ -1,0 +1,66 @@
+<!-- Main Content Header -->
+<div class="main-content-header">
+    <h1>Notifications</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a routerLink="/dashboard-sales" role="button">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <span class="active">Notifications</span>
+        </li>
+    </ol>
+</div>
+<!-- End Main Content Header -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-30">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Declarations d'intervention</h5>
+
+                <div *ngIf="notifications.length === 0" class="text-muted">
+                    Aucune notification.
+                </div>
+
+                <div
+                    *ngFor="let notification of notifications"
+                    class="border rounded p-3 mb-3"
+                    style="cursor: pointer"
+                    (click)="openNotification(notification)"
+                >
+                    <div class="d-flex justify-content-between align-items-start">
+                        <strong>{{ notification.title }}</strong>
+                        <span class="badge badge-warning" *ngIf="!notification.isRead">
+                            Nouveau
+                        </span>
+                    </div>
+
+                    <p class="mb-2 mt-2">{{ notification.message }}</p>
+
+                    <div class="small text-muted">
+                        <div>
+                            Type: {{ notification?.metadata?.interventionType || "-" }}
+                        </div>
+                        <div>
+                            Employe: {{ notification?.metadata?.employeeName || "-" }}
+                        </div>
+                        <div>
+                            Concerne: {{ notification?.metadata?.concernedTarget || "-" }}
+                        </div>
+                        <div>
+                            Date/Heure:
+                            {{
+                                (notification?.metadata?.interventionDateTime ||
+                                    notification?.createdAt
+                                ) | date: "dd/MM/yyyy HH:mm"
+                            }}
+                        </div>
+                        <div>Lieu: {{ notification?.metadata?.lieu || "-" }}</div>
+                    </div>
+
+                    <div class="mt-2 text-primary">Voir details complets</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

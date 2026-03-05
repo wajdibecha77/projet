@@ -1,0 +1,501 @@
+<div class="main-content-header">
+    <h1>Dashboard</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a routerLink="/dashboard-crm">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <span class="active">{{ account.role }}</span>
+        </li>
+    </ol>
+</div>
+<!-- End Main Content Header -->
+
+<!-- Stats Card -->
+<ng-container *ngIf="account.role == 'INFORMATICIEN'">
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataInfo.total }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan fs-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Informatique</span>
+                        </div>
+                        <span class="fw-600">{{ dataInfo.totalbyInter }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-success"
+                            [style]="'width:' + dataInfo.totalbyInter + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Mes Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataInfo.totalMe }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan font-size-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Informatique</span>
+                        </div>
+                        <span class="fw-600">{{ dataInfo.totalbyMe }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-primary"
+                            [style]="'width:' + dataInfo.totalbyMe + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1 fs-16">
+                            Interventions en cours
+                        </p>
+                        <h6 class="mb-0 fs-16">
+                            {{ dataInfo.totalEnCours }}
+                        </h6>
+                    </div>
+                    <div class="avatar avatar-gold">
+                        <i class="fa fa-laptop" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1">
+                            Intervention non affectée
+                        </p>
+                        <h3 class="mb-0 fs-25">
+                            {{ dataInfo.totalNotAffected }}
+                        </h3>
+                    </div>
+                    <div class="avatar avatar-purple">
+                        <i class="fa fa-spinner" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="account.role == 'ELECTRICIEN'">
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataElec.total }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan fs-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Electrique</span>
+                        </div>
+                        <span class="fw-600">{{ dataElec.totalbyInter }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-success"
+                            [style]="'width:' + dataElec.totalbyInter + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Mes Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataElec.totalMe }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan font-size-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Electrique</span>
+                        </div>
+                        <span class="fw-600">{{ dataElec.totalbyMe }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-primary"
+                            [style]="'width:' + dataElec.totalbyMe + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1 fs-16">
+                            Interventions en cours
+                        </p>
+                        <h6 class="mb-0 fs-16">
+                            {{ dataElec.totalEnCours }}
+                        </h6>
+                    </div>
+                    <div class="avatar avatar-gold">
+                        <i class="fa fa-battery-half" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1">
+                            Intervention non affectée
+                        </p>
+                        <h3 class="mb-0 fs-25">
+                            {{ dataElec.totalNotAffected }}
+                        </h3>
+                    </div>
+                    <div class="avatar avatar-purple">
+                        <i class="fa fa-spinner" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="account.role == 'MECANICIEN'">
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataMeca.total }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan fs-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Mecanique</span>
+                        </div>
+                        <span class="fw-600">{{ dataMeca.totalbyInter }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-success"
+                            [style]="'width:' + dataMeca.totalbyInter + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Mes Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataMeca.totalMe }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan font-size-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Mecanique</span>
+                        </div>
+                        <span class="fw-600">{{ dataMeca.totalbyMe }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-primary"
+                            [style]="'width:' + dataMeca.totalbyMe + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1 fs-16">
+                            Interventions en cours
+                        </p>
+                        <h6 class="mb-0 fs-16">
+                            {{ dataMeca.totalEnCours }}
+                        </h6>
+                    </div>
+                    <div class="avatar avatar-gold">
+                        <i class="fa fa-laptop" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1">
+                            Intervention non affectée
+                        </p>
+                        <h3 class="mb-0 fs-25">
+                            {{ dataMeca.totalNotAffected }}
+                        </h3>
+                    </div>
+                    <div class="avatar avatar-purple">
+                        <i class="fa fa-car" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="account.role == 'PLOMBERIE'">
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataPlom.total }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan fs-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Plomberie</span>
+                        </div>
+                        <span class="fw-600">{{ dataPlom.totalbyInter }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-success"
+                            [style]="'width:' + dataPlom.totalbyInter + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-one mb-30">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-10 line-height-1">Mes Interventions</p>
+                        <h3 class="mb-0 fs-25">{{ dataPlom.totalMe }}</h3>
+                    </div>
+
+                    <span class="badge badge-cyan font-size-12">
+                        <i class="icofont-swoosh-up mr-1"></i>
+                        <span class="fw-600 m-l-5">Total</span>
+                    </span>
+                </div>
+
+                <div class="mt-15">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span>Plomberie</span>
+                        </div>
+                        <span class="fw-600">{{ dataPlom.totalbyMe }}%</span>
+                    </div>
+
+                    <div class="progress progress-sm mt-1">
+                        <div
+                            class="progress-bar bg-primary"
+                            [style]="'width:' + dataPlom.totalbyMe + '%'"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1 fs-16">
+                            Interventions en cours
+                        </p>
+                        <h6 class="mb-0 fs-16">
+                            {{ dataPlom.totalEnCours }}
+                        </h6>
+                    </div>
+                    <div class="avatar avatar-gold">
+                        <i class="fa fa-laptop" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-6">
+            <div class="stats-card-two mb-30">
+                <div class="media align-items-center justify-content-between">
+                    <div class="ml-0">
+                        <p class="mb-10 line-height-1">
+                            Intervention non affectée
+                        </p>
+                        <h3 class="mb-0 fs-25">
+                            {{ dataPlom.totalNotAffected }}
+                        </h3>
+                    </div>
+                    <div class="avatar avatar-purple">
+                        <i class="fa fa-tint" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<div class="card mb-30">
+    <div class="card-body">
+        <div class="card-header">
+            <a
+                routerLink="/mes-interventions"
+                class="btn btn-primary float-right"
+                >Voir tous</a
+            >
+            <h5 class="card-title">Liste des interventions</h5>
+        </div>
+
+        <div class="height-365">
+            <div class="table-responsive">
+                <table class="table table-hover text-vertical-middle mb-0">
+                    <thead class="bort-none borpt-0">
+                        <tr>
+                            <th>Num</th>
+                            <th>Type d'intervention</th>
+                            <th>Delai</th>
+                            <th>Created by</th>
+                            <th>Lieu</th>
+                            <th>Description</th>
+                            <th>Etat</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let intervention of interventions;
+                                let index = index
+                            "
+                        >
+                            <ng-container *ngIf="index < 4">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ intervention.name }}</td>
+                                <td>{{ intervention.delai }}</td>
+                                <td>{{ intervention.createdBy.name }}</td>
+                                <td>{{ intervention.lieu }}</td>
+                                <td>{{ intervention.description }}</td>
+                                <td>
+                                    <span
+                                        *ngIf="intervention.etat == 'EN_COURS'"
+                                        class="badge badge_warning py-1"
+                                        >En cours</span
+                                    >
+                                    <span
+                                        *ngIf="intervention.etat == 'TERMINEE'"
+                                        class="badge badge_success py-1"
+                                        >Terminée</span
+                                    >
+                                    <span
+                                        *ngIf="
+                                            intervention.etat == 'NON_AFFECTEE'
+                                        "
+                                        class="badge badge_danger py-1"
+                                        >Non affectée</span
+                                    >
+                                </td>
+                            </ng-container>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+<!-- Main Content Header -->
+<div class="main-content-header">
+    <h1>Dashboard</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a routerLink="/dashboard-crm">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <span class="active">{{ account.role }}</span>
+        </li>
+    </ol>
+</div>
+<!-- End Main Content Header -->
+
+<!-- Stats Card -->
+<div class="row">
+    <div class="col-lg-3 col-sm-6">
+        <div class="stats-card-two mb-30">
+            <div class="media align-items-center justify-content-between">
+                <div class="ml-0">
+                    <p class="mb-10 line-height-1">Informatique</p>
+                    <h3 class="mb-0 fs-25">{{ totalInfo }}</h3>
+                </div>
+                <div class="avatar avatar-blue">
+                    <i class="fa fa-laptop" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6">
+        <div class="stats-card-two mb-30">
+            <div class="media align-items-center justify-content-between">
+                <div class="ml-0">
+                    <p class="mb-10 line-height-1">Electrique</p>
+                    <h3 class="mb-0 fs-25">{{ totalElec }}</h3>
+                </div>
+                <div class="avatar avatar-cyan">
+                    <i class="fa fa-battery-half" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6">
+        <div class="stats-card-two mb-30">
+            <div class="media align-items-center justify-content-between">
+                <div class="ml-0">
+                    <p class="mb-10 line-height-1">Mecanique</p>
+                    <h3 class="mb-0 fs-25">{{ totalMeca }}</h3>
+                </div>
+                <div class="avatar avatar-gold">
+                    <i class="fa fa-car" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6">
+        <div class="stats-card-two mb-30">
+            <div class="media align-items-center justify-content-between">
+                <div class="ml-0">
+                    <p class="mb-10 line-height-1">Plomberie & chaud froid</p>
+                    <h3 class="mb-0 fs-25">{{ totalPlom }}</h3>
+                </div>
+                <div class="avatar avatar-purple">
+                    <i class="fa fa-tint" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Stats Card -->
+
+<!-- Total Sales & Weekly Target -->
+<div class="row">
+    <div class="col-lg-12 col-xl-8">
+        <app-total-sales
+            [dataElec]="dataElec"
+            [dataMeca]="dataMeca"
+            [dataInfo]="dataInfo"
+            [dataPlom]="dataPlom"
+        ></app-total-sales>
+    </div>
+
+    <div class="col-lg-12 col-xl-4">
+        <app-weekly-target
+            [total]="total"
+            [totalByMonth]="totalByMonth"
+        ></app-weekly-target>
+    </div>
+</div>

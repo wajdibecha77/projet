@@ -1,0 +1,72 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="left-side">
+      <img src="assets/img/Logo.png" class="logo" alt="TAV Airports" />
+      <h2 class="brand-title">Plateforme Opérations</h2>
+      <p class="brand-desc">
+        Gestion des interventions, fournisseurs, commande et service interne.
+      </p>
+    </div>
+
+    <div class="right-side">
+      <h1 class="title">Connexion</h1>
+      <p class="subtitle">Connectez-vous pour accéder à votre espace.</p>
+
+      <div class="alert info" *ngIf="messageFR && !errorFR">{{ messageFR }}</div>
+      <div class="alert error" *ngIf="errorFR">{{ errorFR }}</div>
+
+      <!-- LOGIN FORM -->
+      <div class="form-block" *ngIf="!waitingVerification">
+        <div class="field">
+          <label>Email</label>
+          <input
+            type="email"
+            [(ngModel)]="email"
+            placeholder="exemple@email.com"
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="field">
+          <label>Mot de passe</label>
+          <input
+            type="password"
+            [(ngModel)]="password"
+            placeholder="********"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button class="btn-primary" (click)="onLogin()" [disabled]="loading">
+          {{ loading ? "Connexion..." : "Se connecter" }}
+        </button>
+
+        <a class="link" routerLink="/auth/forgot-password">Mot de passe oublié ?</a>
+      </div>
+
+      <!-- OTP VERIFICATION -->
+      <div class="form-block" *ngIf="waitingVerification">
+        <div class="field">
+          <label>Code OTP</label>
+          <input
+            type="text"
+            [(ngModel)]="otp"
+            placeholder="Entrez le code reçu"
+            maxlength="6"
+            inputmode="numeric"
+          />
+        </div>
+
+        <button class="btn-primary" (click)="onVerifyOtp()" [disabled]="loading">
+          {{ loading ? "Vérification..." : "Vérifier" }}
+        </button>
+
+        <button class="btn-secondary" type="button" (click)="cancelVerification()" [disabled]="loading">
+          Annuler
+        </button>
+
+        <a class="link" routerLink="/auth/signin">Retour à la connexion</a>
+      </div>
+    </div>
+  </div>
+</div>
