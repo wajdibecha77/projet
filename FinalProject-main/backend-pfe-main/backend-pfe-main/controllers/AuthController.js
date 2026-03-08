@@ -569,12 +569,18 @@ module.exports = {
         status: "PENDING",
       });
 
-      if (!challenge) return res.status(400).send("Lien expiré ou invalide.");
+      if (!challenge) return res.status(400).send("Lien expire ou invalide.");
 
       challenge.status = "DENIED";
       await challenge.save();
 
-      return res.send("Connexion refusée. Si ce n’est pas vous, changez votre mot de passe immédiatement.");
+      const appUrl = process.env.APP_PUBLIC_URL || "http://localhost:4200";
+      const forgotPasswordUrl =
+        `${appUrl}/auth/forgot-password` +
+        `?email=${encodeURIComponent(challenge.email)}` +
+        `&securityAlert=1`;
+
+      return res.redirect(forgotPasswordUrl);
     } catch {
       return res.status(500).send("Erreur serveur");
     }
@@ -637,4 +643,5 @@ module.exports = {
     }
   },
 };
+
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { NotifierService } from "angular-notifier";
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -11,14 +11,27 @@ import { AuthService } from 'src/app/services/auth.service';
 export class ForgotPasswordComponent implements OnInit {
     public email: string = "";
     public isSubmitting: boolean = false;
+    public securityAlert: boolean = false;
 
     constructor(
         private authService: AuthService,
         private notifier: NotifierService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.route.queryParamMap.subscribe((params) => {
+            const emailFromQuery = (params.get("email") || "").trim().toLowerCase();
+            const alertFlag = params.get("securityAlert");
+
+            if (emailFromQuery) {
+                this.email = emailFromQuery;
+            }
+
+            this.securityAlert = alertFlag === "1" || alertFlag === "true";
+        });
+    }
 
     handleResetPassword() {
         if (this.isSubmitting) {
@@ -61,3 +74,4 @@ export class ForgotPasswordComponent implements OnInit {
         );
     }
 }
+
