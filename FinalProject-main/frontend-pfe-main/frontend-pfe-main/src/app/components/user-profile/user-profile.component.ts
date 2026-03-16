@@ -13,6 +13,7 @@ export class UserProfileComponent implements OnInit {
     public successMsg: String = "";
     public errorMsg: String = "";
     public account: User;
+    public isSubmitting: boolean = false;
     constructor(private userService: UserService) {
         this.isConnected = userService.isConnected;
     }
@@ -30,6 +31,28 @@ export class UserProfileComponent implements OnInit {
     }
 
     update() {
-        console.log(this.account);
+        this.successMsg = "";
+        this.errorMsg = "";
+
+        const userId = (this.account as any)?._id;
+        if (!userId) {
+            this.errorMsg = "Utilisateur introuvable.";
+            return;
+        }
+
+        this.isSubmitting = true;
+        this.userService.updateUser(userId, this.account).subscribe(
+            (res: any) => {
+                this.account = res?.data || this.account;
+                this.account.password = "";
+                this.successMsg = "Profil mis a jour avec succes.";
+                this.isSubmitting = false;
+            },
+            (err: any) => {
+                this.errorMsg =
+                    err?.error?.message || "Echec de mise a jour du profil.";
+                this.isSubmitting = false;
+            }
+        );
     }
 }
