@@ -32,6 +32,15 @@ const NotificationSchema = new mongoose.Schema(
       ref: "Intervention",
       required: false,
     },
+    technicienId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+    technicienName: {
+      type: String,
+      required: false,
+    },
     metadata: {
       interventionType: { type: String, required: false },
       employeeName: { type: String, required: false },

@@ -55,6 +55,43 @@ export class DashboardClientComponent implements OnInit {
         this.isConnected = userService.isConnected;
     }
 
+    private resetStats() {
+        this.interventions = [];
+        this.total = 0;
+        this.dataElec = {
+            total: 0,
+            totalbyInter: 0,
+            totalbyMe: 0,
+            totalMe: 0,
+            totalEnCours: 0,
+            totalNotAffected: 0,
+        };
+        this.dataMeca = {
+            total: 0,
+            totalMe: 0,
+            totalbyMe: 0,
+            totalbyInter: 0,
+            totalEnCours: 0,
+            totalNotAffected: 0,
+        };
+        this.dataInfo = {
+            total: 0,
+            totalMe: 0,
+            totalbyMe: 0,
+            totalEnCours: 0,
+            totalbyInter: 0,
+            totalNotAffected: 0,
+        };
+        this.dataPlom = {
+            total: 0,
+            totalMe: 0,
+            totalbyMe: 0,
+            totalbyInter: 0,
+            totalEnCours: 0,
+            totalNotAffected: 0,
+        };
+    }
+
     ngOnInit(): void {
         if (this.token) {
             this.isConnected = true;
@@ -62,9 +99,10 @@ export class DashboardClientComponent implements OnInit {
             this.userService.getConnectedUser().subscribe((res: any) => {
                 console.log(res);
                 this.account = res.data;
+                this.resetStats();
 
                 this.interService
-                    .getAllInterventions()
+                    .getAllInterventions(true)
                     .subscribe((res: any) => {
                         this.total = res.length;
                         this.interventions = res;
@@ -93,7 +131,10 @@ export class DashboardClientComponent implements OnInit {
                                             this.dataInfo.total
                                         ).toFixed(2);
                                     }
-                                } else {
+                                } else if (
+                                    !inter.affectedBy &&
+                                    inter.etat != "TERMINEE"
+                                ) {
                                     this.dataInfo.totalNotAffected += 1;
                                 }
                             }
@@ -117,7 +158,10 @@ export class DashboardClientComponent implements OnInit {
                                             this.dataMeca.total
                                         ).toFixed(2);
                                     }
-                                } else {
+                                } else if (
+                                    !inter.affectedBy &&
+                                    inter.etat != "TERMINEE"
+                                ) {
                                     this.dataMeca.totalNotAffected += 1;
                                 }
                             }
@@ -141,7 +185,10 @@ export class DashboardClientComponent implements OnInit {
                                             this.dataElec.total
                                         ).toFixed(2);
                                     }
-                                } else {
+                                } else if (
+                                    !inter.affectedBy &&
+                                    inter.etat != "TERMINEE"
+                                ) {
                                     this.dataElec.totalNotAffected += 1;
                                 }
                             }
@@ -165,7 +212,10 @@ export class DashboardClientComponent implements OnInit {
                                             this.dataPlom.total
                                         ).toFixed(2);
                                     }
-                                } else {
+                                } else if (
+                                    !inter.affectedBy &&
+                                    inter.etat != "TERMINEE"
+                                ) {
                                     this.dataPlom.totalNotAffected += 1;
                                 }
                             }

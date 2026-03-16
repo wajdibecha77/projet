@@ -22,7 +22,8 @@ export class InterventionDetailsComponent implements OnInit {
     constructor(
         private interventionService: InterventionService,
         private userService: UserService,
-        private router: ActivatedRoute
+        private route: ActivatedRoute,
+        private appRouter: Router
     ) {}
 
     ngOnInit(): void {
@@ -34,9 +35,21 @@ export class InterventionDetailsComponent implements OnInit {
                 });
             }
         });
-        this.router.params.subscribe((params) => {
+        this.route.params.subscribe((params) => {
             this.id = params["id"];
             this.loadIntervention();
+        });
+    }
+
+    private redirectToDashboard() {
+        if (this.me?.role === "ADMIN") {
+            this.appRouter.navigate(["/dashboard"], {
+                queryParams: { refresh: Date.now() },
+            });
+            return;
+        }
+        this.appRouter.navigate(["/dashboard-client"], {
+            queryParams: { refresh: Date.now() },
         });
     }
 
@@ -94,7 +107,7 @@ export class InterventionDetailsComponent implements OnInit {
                 fermer: 1,
             })
             .subscribe((res: any) => {
-                this.loadIntervention();
+                this.redirectToDashboard();
             });
     }
 

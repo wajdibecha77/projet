@@ -16,7 +16,7 @@
     <div class="col-12">
         <div class="card mb-30">
             <div class="card-body">
-                <h5 class="card-title mb-3">Declarations d'intervention</h5>
+                <h5 class="card-title mb-3">Notifications d'intervention</h5>
 
                 <div *ngIf="notifications.length === 0" class="text-muted">
                     Aucune notification.
@@ -42,7 +42,11 @@
                             Type: {{ notification?.metadata?.interventionType || "-" }}
                         </div>
                         <div>
-                            Employe: {{ notification?.metadata?.employeeName || "-" }}
+                            Technicien:
+                            {{
+                                notification?.technicienName ||
+                                    notification?.metadata?.employeeName || "-"
+                            }}
                         </div>
                         <div>
                             Concerne: {{ notification?.metadata?.concernedTarget || "-" }}

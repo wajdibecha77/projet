@@ -6,27 +6,41 @@ const Notification = require("../models/Notification");
 
 const normalizeRole = (role) => String(role || "").toUpperCase();
 const sameId = (a, b) => String(a || "") === String(b || "");
+const TECHNICIAN_ROLES = ["INFORMATICIEN", "ELECTRICIEN", "MECANICIEN", "PLOMBERIE", "TECHNICIEN"];
+
+const isTechnicianRole = (role) => TECHNICIAN_ROLES.includes(normalizeRole(role));
 
 const canAccessIntervention = (intervention, requesterId, requesterRole) => {
   if (!intervention) return false;
-  if (normalizeRole(requesterRole) === "ADMIN") return true;
-  return (
-    sameId(intervention.createdBy, requesterId) ||
-    sameId(intervention.affectedBy, requesterId)
-  );
+  const normalizedRole = normalizeRole(requesterRole);
+  if (normalizedRole === "ADMIN") return true;
+  if (normalizedRole === "EMPLOYEE") return sameId(intervention.createdBy, requesterId);
+  if (isTechnicianRole(normalizedRole)) return sameId(intervention.affectedBy, requesterId);
+  return false;
 };
 
 module.exports = {
   addIntervention: async (req, res) => {
     const { name, delai, description, lieu, degree, createdBy } = req.body;
 
-    if (!name || !delai || !description || !lieu || !degree || !createdBy) {
+    if (!name || !delai || !description || !lieu || !degree) {
       return res.status(400).json({
         message: "all fields is required!",
       });
     }
 
     try {
+      const me = await User.findById(req.user?.id).select("role");
+      if (!me) {
+        return res.status(401).json({
+          message: "Utilisateur introuvable",
+        });
+      }
+
+      const role = normalizeRole(me.role);
+      const ownerId =
+        role === "ADMIN" && createdBy ? createdBy : req.user.id;
+
       const newIntervention = new Intervention({
         name: name,
 
@@ -34,11 +48,11 @@ module.exports = {
         description: description,
         lieu: lieu,
         degree: degree,
-        createdBy: createdBy,
+        createdBy: ownerId,
       });
       const savedIntervention = await newIntervention.save();
 
-      const creator = await User.findById(createdBy).populate("service");
+      const creator = await User.findById(ownerId).populate("service");
       if (creator && creator.role === "EMPLOYEE") {
         const employeeName = creator?.name || "Employe inconnu";
         const concernedTarget =
@@ -92,15 +106,30 @@ module.exports = {
 
       let query = {};
       const role = String(me.role || "").toUpperCase();
+      const includeUnassigned =
+        String(req.query?.includeUnassigned || "").toLowerCase() === "true" ||
+        String(req.query?.includeUnassigned || "") === "1";
 
       if (role === "ADMIN") {
         query = {};
       } else if (role === "EMPLOYEE") {
         // Employee/requester: only interventions created by this user.
         query = { createdBy: req.user.id };
+      } else if (isTechnicianRole(role)) {
+        // Technician: assigned to me. Optionally include non-assigned/non-terminated for dashboard stats.
+        query = includeUnassigned
+          ? {
+              $or: [
+                { affectedBy: req.user.id },
+                { affectedBy: null, etat: { $ne: "TERMINEE" } },
+                { affectedBy: { $exists: false }, etat: { $ne: "TERMINEE" } },
+              ],
+            }
+          : { affectedBy: req.user.id };
       } else {
-        // Technician roles: only interventions assigned to this user.
-        query = { affectedBy: req.user.id };
+        return res.status(403).json({
+          message: "Role non autorise",
+        });
       }
 
       const interventions = await Intervention.find(query)
@@ -222,7 +251,7 @@ module.exports = {
 
   updateIntervention: async (req, res) => {
     const { affectedBy, etat, fermer, workDetails, comment, problem } = req.body;
-    const me = await User.findById(req.user?.id).select("role");
+    const me = await User.findById(req.user?.id).select("role name");
     if (!me) {
       return res.status(401).json({
         message: "Utilisateur introuvable",
@@ -282,11 +311,41 @@ module.exports = {
         await Intervention.findByIdAndUpdate(
           { _id: req.params.id },
           {
-            dateDebut: null,
-            etat: "NON_AFFECTEE",
-            affectedBy: null,
+            $set: {
+              dateDebut: null,
+              etat: "NON_AFFECTEE",
+            },
+            $unset: {
+              affectedBy: "",
+            },
           }
         );
+
+        if (isTechnicianRole(me.role)) {
+          const technicianName = me?.name || "Technicien";
+          await Notification.create({
+            category: "INTERVENTION_REFUSED",
+            title: "Refus d'intervention",
+            message:
+              "Le technicien " +
+              technicianName +
+              " a refus\u00e9 l\u2019intervention qui lui a \u00e9t\u00e9 assign\u00e9e.",
+            type: "intervention_refused",
+            isRead: false,
+            technicienId: req.user.id,
+            technicienName: technicianName,
+            interventionId: inter._id,
+            createdAt: new Date(),
+            metadata: {
+              interventionType: inter?.name || "",
+              employeeName: technicianName,
+              concernedTarget: inter?.description || "",
+              interventionDateTime: new Date(),
+              lieu: inter?.lieu || "",
+            },
+          });
+        }
+
         return res.status(200).json({
           message: "Intervention updated successfully",
         });
@@ -373,3 +432,4 @@ module.exports = {
     });
   },
 };
+

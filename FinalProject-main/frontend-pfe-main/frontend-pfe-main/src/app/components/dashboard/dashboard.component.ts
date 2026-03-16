@@ -18,10 +18,10 @@ export class DashboardComponent implements OnInit {
     public total = 0;
     public totalByMonth = 0;
 
-    public dataElec = [];
-    public dataMeca = [];
-    public dataInfo = [];
-    public dataPlom = [];
+    public dataElec: number[] = Array(12).fill(0);
+    public dataMeca: number[] = Array(12).fill(0);
+    public dataInfo: number[] = Array(12).fill(0);
+    public dataPlom: number[] = Array(12).fill(0);
     public token?: any = localStorage.getItem("token");
     public isConnected: boolean = false;
 
@@ -31,6 +31,34 @@ export class DashboardComponent implements OnInit {
         private interService: InterventionService
     ) {
         this.isConnected = userService.isConnected;
+    }
+
+    private resetDashboardStats() {
+        this.totalInfo = 0;
+        this.totalMeca = 0;
+        this.totalElec = 0;
+        this.totalPlom = 0;
+        this.total = 0;
+        this.totalByMonth = 0;
+        this.dataElec = Array(12).fill(0);
+        this.dataMeca = Array(12).fill(0);
+        this.dataInfo = Array(12).fill(0);
+        this.dataPlom = Array(12).fill(0);
+    }
+
+    private getInterventionType(name: string): "INFO" | "MECA" | "ELEC" | "PLOM" | null {
+        const value = String(name || "").toLowerCase();
+        if (value.includes("info")) return "INFO";
+        if (value.includes("meca")) return "MECA";
+        if (value.includes("elec")) return "ELEC";
+        if (
+            value.includes("plom") ||
+            value.includes("chaud") ||
+            value.includes("froid")
+        ) {
+            return "PLOM";
+        }
+        return null;
     }
 
     ngOnInit(): void {
@@ -44,76 +72,32 @@ export class DashboardComponent implements OnInit {
         }
 
         this.interService.getAllInterventions().subscribe((res: any) => {
-            console.log(res);
+            this.resetDashboardStats();
             this.total = res.length;
 
-            res.map((inter) => {
-                let monthIntervention =
-                    new Date(inter.createdAt).getMonth() + 1;
-                let currentMonth = new Date().getMonth() + 1;
-                if (inter.name.toLowerCase().includes("info")) {
+            const currentMonth = new Date().getMonth();
+            res.forEach((inter) => {
+                const monthIntervention = new Date(inter.createdAt).getMonth();
+                const type = this.getInterventionType(inter?.name);
+
+                if (type === "INFO") {
                     this.totalInfo += 1;
-                    for (let i = 0; i < 12; i++) {
-                        if (monthIntervention == i + 1) {
-                            if (this.dataInfo[i]) {
-                                this.dataInfo[i] += 1;
-                            } else {
-                                this.dataInfo[i] = 1;
-                            }
-                        } else {
-                            this.dataInfo[i] = 0;
-                        }
-                    }
-                }
-                if (inter.name.toLowerCase().includes("meca")) {
+                    this.dataInfo[monthIntervention] += 1;
+                } else if (type === "MECA") {
                     this.totalMeca += 1;
-                    for (let i = 0; i < 12; i++) {
-                        if (monthIntervention == i + 1) {
-                            if (this.dataMeca[i]) {
-                                this.dataMeca[i] += 1;
-                            } else {
-                                this.dataMeca[i] = 1;
-                            }
-                        } else {
-                            this.dataMeca[i] = 0;
-                        }
-                    }
-                }
-                if (inter.name.toLowerCase().includes("elec")) {
+                    this.dataMeca[monthIntervention] += 1;
+                } else if (type === "ELEC") {
                     this.totalElec += 1;
-                    for (let i = 0; i < 12; i++) {
-                        if (monthIntervention == i + 1) {
-                            if (this.dataElec[i]) {
-                                this.dataElec[i] += 1;
-                            } else {
-                                this.dataElec[i] = 1;
-                            }
-                        } else {
-                            this.dataElec[i] = 0;
-                        }
-                    }
-                }
-                if (inter.name.toLowerCase().includes("plom")) {
+                    this.dataElec[monthIntervention] += 1;
+                } else if (type === "PLOM") {
                     this.totalPlom += 1;
-                    for (let i = 0; i < 12; i++) {
-                        if (monthIntervention == i + 1) {
-                            if (this.dataPlom[i]) {
-                                this.dataPlom[i] += 1;
-                            } else {
-                                this.dataPlom[i] = 1;
-                            }
-                        } else {
-                            this.dataPlom[i] = 0;
-                        }
-                    }
+                    this.dataPlom[monthIntervention] += 1;
                 }
 
-                if (monthIntervention == currentMonth) {
+                if (monthIntervention === currentMonth) {
                     this.totalByMonth += 1;
                 }
             });
-
-            console.log(this.dataElec);
         });
     }
 }

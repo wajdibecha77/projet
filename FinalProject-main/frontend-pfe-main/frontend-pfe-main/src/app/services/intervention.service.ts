@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -24,7 +24,7 @@ export class InterventionService {
         );
     }
 
-    public getAllInterventions() {
+    public getAllInterventions(includeUnassigned: boolean = false) {
         let token = localStorage.getItem("token");
         let headers = new HttpHeaders({
             "x-auth-token": token ? token : "",
@@ -32,7 +32,11 @@ export class InterventionService {
         if (token) {
             this.isConnected = true;
         }
-        return this.http.get(this.base_Url + "/interventions/all", { headers });
+        let params = new HttpParams();
+        if (includeUnassigned) {
+            params = params.set("includeUnassigned", "true");
+        }
+        return this.http.get(this.base_Url + "/interventions/all", { headers, params });
     }
 
     public getInterventionById(id) {

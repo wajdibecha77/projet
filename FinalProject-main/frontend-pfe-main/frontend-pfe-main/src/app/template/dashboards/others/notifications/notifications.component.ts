@@ -24,7 +24,9 @@ export class NotificationsComponent implements OnInit {
             (res: any) => {
                 this.notifications = (res?.data || []).filter(
                     (notification: any) =>
-                        notification?.category === "INTERVENTION_DECLARED"
+                        notification?.category === "INTERVENTION_DECLARED" ||
+                        notification?.category === "INTERVENTION_REFUSED" ||
+                        notification?.type === "intervention_refused"
                 );
             },
             () => {

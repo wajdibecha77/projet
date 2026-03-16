@@ -25,22 +25,68 @@ import { CreateInterventionComponent } from "./components/create-intervention/cr
 import { InterventionDetailsComponent } from "./components/intervention-details/intervention-details.component";
 import { CreateOrderInterventionComponent } from "./components/create-order-intervention/create-order-intervention.component";
 import { AuthGuard } from "./guards/auth.guard";
+import { RoleGuard } from "./guards/role.guard";
 
 const routes: Routes = [
   { path: "", redirectTo: "/auth/signin", pathMatch: "full" },
   { path: "login", redirectTo: "/auth/signin", pathMatch: "full" },
 
-  { path: "dashboard", component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: "dashboard-client", component: DashboardClientComponent, canActivate: [AuthGuard] },
-  { path: "users", component: ListingUsersComponent, canActivate: [AuthGuard] },
-  { path: "interventions", component: ListingInterventionsComponent, canActivate: [AuthGuard] },
-  { path: "mes-interventions", component: MesInterventionsComponent, canActivate: [AuthGuard] },
+  {
+    path: "dashboard",
+    component: DashboardComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
+  {
+    path: "dashboard-client",
+    component: DashboardClientComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { nonAdminOnly: true },
+  },
+  {
+    path: "users",
+    component: ListingUsersComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
+  {
+    path: "interventions",
+    component: ListingInterventionsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
+  {
+    path: "mes-interventions",
+    component: MesInterventionsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { techniciansOnly: true },
+  },
   { path: "intervention/:id", component: InterventionDetailsComponent, canActivate: [AuthGuard] },
-  { path: "services", component: ListingServicesComponent, canActivate: [AuthGuard] },
-  { path: "fournisseurs", component: ListingFournisseursComponent, canActivate: [AuthGuard] },
+  {
+    path: "services",
+    component: ListingServicesComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
+  {
+    path: "fournisseurs",
+    component: ListingFournisseursComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
   { path: "commandes", component: ListingOrdersComponent, canActivate: [AuthGuard] },
-  { path: "create-user", component: CreateUserComponent, canActivate: [AuthGuard] },
-  { path: "create-user/:id", component: CreateUserComponent, canActivate: [AuthGuard] },
+  {
+    path: "create-user",
+    component: CreateUserComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
+  {
+    path: "create-user/:id",
+    component: CreateUserComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { adminsOnly: true },
+  },
   { path: "create-intervention", component: CreateInterventionComponent, canActivate: [AuthGuard] },
   { path: "create-service", component: CreateServiceComponent, canActivate: [AuthGuard] },
   { path: "create-service/:id", component: CreateServiceComponent, canActivate: [AuthGuard] },

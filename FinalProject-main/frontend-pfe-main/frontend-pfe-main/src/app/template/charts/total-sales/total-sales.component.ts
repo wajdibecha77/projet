@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
 import ApexCharts from "apexcharts";
 
 @Component({
@@ -6,13 +6,22 @@ import ApexCharts from "apexcharts";
     templateUrl: "./total-sales.component.html",
     styleUrls: ["./total-sales.component.scss"],
 })
-export class TotalSalesComponent implements OnInit {
+export class TotalSalesComponent implements OnInit, OnChanges, OnDestroy {
     @Input() dataElec;
     @Input() dataMeca;
     @Input() dataInfo;
     @Input() dataPlom;
+    private chart: ApexCharts | null = null;
     constructor() {}
-    ngOnChanges() {
+
+    private toMonthlyData(input: any): number[] {
+        if (Array.isArray(input) && input.length === 12) {
+            return input.map((v) => Number(v || 0));
+        }
+        return Array(12).fill(0);
+    }
+
+    private renderChart() {
         const options = {
             chart: {
                 height: 380,
@@ -22,19 +31,19 @@ export class TotalSalesComponent implements OnInit {
             series: [
                 {
                     name: "Electrique",
-                    data: this.dataElec,
+                    data: this.toMonthlyData(this.dataElec),
                 },
                 {
                     name: "Mecanique",
-                    data: this.dataMeca,
+                    data: this.toMonthlyData(this.dataMeca),
                 },
                 {
                     name: "Plomberie & chaud froid",
-                    data: this.dataPlom,
+                    data: this.toMonthlyData(this.dataPlom),
                 },
                 {
                     name: "Informatique",
-                    data: this.dataInfo,
+                    data: this.toMonthlyData(this.dataInfo),
                 },
             ],
             labels: [
@@ -95,11 +104,28 @@ export class TotalSalesComponent implements OnInit {
                 },
             },
         };
-        const chart = new ApexCharts(
-            document.querySelector("#total-sales-chart"),
-            options
-        );
-        chart.render();
+        const chartContainer = document.querySelector("#total-sales-chart");
+        if (!chartContainer) return;
+
+        if (this.chart) {
+            this.chart.destroy();
+        }
+        this.chart = new ApexCharts(chartContainer, options);
+        this.chart.render();
     }
-    ngOnInit() {}
+
+    ngOnChanges(_: SimpleChanges) {
+        this.renderChart();
+    }
+
+    ngOnInit() {
+        this.renderChart();
+    }
+
+    ngOnDestroy() {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+        }
+    }
 }
