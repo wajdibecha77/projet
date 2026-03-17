@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { NotifierService } from "angular-notifier";
+import { Router } from "@angular/router";
 import { Intervention } from "src/app/models/intervention";
 import { InterventionService } from "src/app/services/intervention.service";
 import { UserService } from "src/app/services/user.service";
@@ -17,7 +18,8 @@ export class CreateInterventionComponent implements OnInit {
     constructor(
         private interService: InterventionService,
         private userService: UserService,
-        private notifier: NotifierService
+        private notifier: NotifierService,
+        private router: Router
     ) {
         this.intervention = new Intervention();
     }
@@ -35,9 +37,12 @@ export class CreateInterventionComponent implements OnInit {
             (res: any) => {
                 this.successMsg = "Intervention added successfully!";
                 setTimeout(() => {
-                    if (this.role != "EMPLOYEE") {
-                        window.location.href = "/interventions";
+                    if (this.role == "EMPLOYEE") {
+                        this.router.navigate(["/mes-interventions"]);
+                        return;
                     }
+
+                    this.router.navigate(["/interventions"]);
                 }, 2000);
             },
             (err) => {

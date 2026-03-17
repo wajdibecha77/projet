@@ -16,11 +16,18 @@ export class NotificationsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.loadNotifications();
+        this.notificationService.markAllAsRead().subscribe(
+            () => {
+                this.loadNotifications();
+            },
+            () => {
+                this.loadNotifications();
+            }
+        );
     }
 
     loadNotifications() {
-        this.notificationService.getAllNotifications().subscribe(
+        this.notificationService.getMyNotifications().subscribe(
             (res: any) => {
                 this.notifications = (res?.data || []).filter(
                     (notification: any) =>
@@ -31,6 +38,7 @@ export class NotificationsComponent implements OnInit {
             },
             () => {
                 this.notifications = [];
+                this.notificationService.updateUnreadCount([]);
             }
         );
     }

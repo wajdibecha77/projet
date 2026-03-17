@@ -1,11 +1,15 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
 })
 export class NotificationService {
     public base_Url = "http://localhost:5000";
+    private notificationsCountSubject = new BehaviorSubject<number>(0);
+    public notificationsCount$ = this.notificationsCountSubject.asObservable();
 
     constructor(private http: HttpClient) {}
 
@@ -16,10 +20,30 @@ export class NotificationService {
         });
     }
 
+    private getUnreadCount(notifications: any[] = []) {
+        return (notifications || []).filter(
+            (notification: any) => notification?.isRead === false
+        ).length;
+    }
+
     public getAllNotifications() {
         return this.http.get(this.base_Url + "/notifications/all", {
             headers: this.authHeaders(),
         });
+    }
+
+    public getMyNotifications() {
+        return this.http
+            .get(this.base_Url + "/notifications/my", {
+                headers: this.authHeaders(),
+            })
+            .pipe(tap((res: any) => this.updateUnreadCount(res?.data || [])));
+    }
+
+    public refreshNotificationsCount(): Observable<number> {
+        return this.getMyNotifications().pipe(
+            map((res: any) => this.getUnreadCount(res?.data || []))
+        );
     }
 
     public markAsRead(id: string) {
@@ -29,6 +53,30 @@ export class NotificationService {
             {
                 headers: this.authHeaders(),
             }
+        ).pipe(
+            tap(() => {
+                this.notificationsCountSubject.next(
+                    Math.max(this.notificationsCountSubject.value - 1, 0)
+                );
+            })
         );
+    }
+
+    public markAllAsRead() {
+        return this.http.put(
+            this.base_Url + "/notifications/read-all",
+            {},
+            {
+                headers: this.authHeaders(),
+            }
+        ).pipe(
+            tap(() => {
+                this.notificationsCountSubject.next(0);
+            })
+        );
+    }
+
+    public updateUnreadCount(notifications: any[]) {
+        this.notificationsCountSubject.next(this.getUnreadCount(notifications));
     }
 }

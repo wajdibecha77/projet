@@ -59,7 +59,7 @@ const routes: Routes = [
     path: "mes-interventions",
     component: MesInterventionsComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { techniciansOnly: true },
+    data: { nonAdminOnly: true },
   },
   { path: "intervention/:id", component: InterventionDetailsComponent, canActivate: [AuthGuard] },
   {

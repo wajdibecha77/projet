@@ -10,7 +10,15 @@
                         [routerLink]="item.path"
                         routerLinkActive="active"
                     >
-                        <i [attr.data-feather]="item.icon" class="icon"></i>
+                        <span class="icon-wrapper">
+                            <i [attr.data-feather]="item.icon" class="icon"></i>
+                            <span
+                                *ngIf="item.path === '/notifications' && notificationsCount > 0"
+                                class="notification-badge"
+                            >
+                                {{ notificationsCount > 99 ? '99+' : notificationsCount }}
+                            </span>
+                        </span>
                         <span class="title ml-3">{{ item.title }}</span>
                     </a>
                 </ng-container>

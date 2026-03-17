@@ -11,6 +11,7 @@ export class MesInterventionsComponent implements OnInit {
     public interventions: any;
     public me: any;
     public token?: any = localStorage.getItem("token");
+    public role = String(localStorage.getItem("role") || "").toUpperCase();
     public intervention;
     public affectedUser: any;
     public total = 0;
@@ -38,6 +39,11 @@ export class MesInterventionsComponent implements OnInit {
                     .subscribe((res: any) => {
                         this.total = res.length;
                         if (!type) {
+                            this.interventions = res;
+                            return;
+                        }
+
+                        if (this.role === "EMPLOYEE") {
                             this.interventions = res;
                             return;
                         }

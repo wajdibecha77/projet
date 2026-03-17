@@ -317,6 +317,7 @@ module.exports = {
       await sendResetCodeEmail(normalizeEmail(user.email), code);
 
       await Notification.create({
+        userId: user._id,
         title: "Réinitialisation mot de passe",
         message: "Demande reçue pour : " + normalizedEmail,
         type: "warning",
@@ -576,7 +577,8 @@ module.exports = {
 
       const appUrl = process.env.APP_PUBLIC_URL || "http://localhost:4200";
       const forgotPasswordUrl =
-        `${appUrl}/auth/forgot-password` +
+
+      `${appUrl}/auth/forgot-password` +
         `?email=${encodeURIComponent(challenge.email)}` +
         `&securityAlert=1`;
 

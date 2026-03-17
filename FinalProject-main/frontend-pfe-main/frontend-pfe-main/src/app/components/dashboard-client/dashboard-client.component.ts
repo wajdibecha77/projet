@@ -102,7 +102,7 @@ export class DashboardClientComponent implements OnInit {
                 this.resetStats();
 
                 this.interService
-                    .getAllInterventions(true)
+                    .getAllInterventions(this.account?.role !== "EMPLOYEE")
                     .subscribe((res: any) => {
                         this.total = res.length;
                         this.interventions = res;

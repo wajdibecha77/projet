@@ -8,8 +8,15 @@ const buildNotificationScope = async (req) => {
   const me = await User.findById(req.user?.id).select("role");
   if (!me) return { denied: true, query: { _id: null } };
 
+  const userQuery = { userId: req.user.id };
+
   if (normalizeRole(me.role) === "ADMIN") {
-    return { denied: false, query: {} };
+    return {
+      denied: false,
+      query: {
+        $or: [userQuery, { userId: { $exists: false } }],
+      },
+    };
   }
 
   const interventions = await Intervention.find({
@@ -17,10 +24,19 @@ const buildNotificationScope = async (req) => {
   }).select("_id");
 
   const interventionIds = interventions.map((i) => i._id);
+  const legacyClauses = interventionIds.length
+    ? [
+        {
+          userId: { $exists: false },
+          interventionId: { $in: interventionIds },
+        },
+      ]
+    : [];
+
   return {
     denied: false,
     query: {
-      interventionId: { $in: interventionIds },
+      $or: [userQuery, ...legacyClauses],
     },
   };
 };
@@ -49,6 +65,10 @@ module.exports = {
         message: error.message || "error from server",
       });
     }
+  },
+
+  getMyNotifications: async (req, res) => {
+    return module.exports.getAllNotifications(req, res);
   },
 
   getNotificationById: async (req, res) => {
@@ -125,6 +145,40 @@ module.exports = {
       return res.status(200).json({
         message: "notification marked as read",
         data: notification,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: error.message || "error from server",
+      });
+    }
+  },
+
+  markAllAsRead: async (req, res) => {
+    try {
+      const { denied, query } = await buildNotificationScope(req);
+      if (denied) {
+        return res.status(401).json({
+          message: "user not found",
+          data: null,
+        });
+      }
+
+      const result = await Notification.updateMany(
+        {
+          ...(Object.keys(query).length ? query : {}),
+          isRead: false,
+        },
+        {
+          $set: { isRead: true },
+        }
+      );
+
+      return res.status(200).json({
+        message: "all notifications marked as read",
+        data: {
+          modifiedCount: result.modifiedCount || 0,
+          matchedCount: result.matchedCount || 0,
+        },
       });
     } catch (error) {
       return res.status(500).json({

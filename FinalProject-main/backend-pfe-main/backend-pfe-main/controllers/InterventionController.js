@@ -10,6 +10,20 @@ const TECHNICIAN_ROLES = ["INFORMATICIEN", "ELECTRICIEN", "MECANICIEN", "PLOMBER
 
 const isTechnicianRole = (role) => TECHNICIAN_ROLES.includes(normalizeRole(role));
 
+const createNotificationsForUsers = async (userIds, payload) => {
+  const uniqueUserIds = [...new Set((userIds || []).filter(Boolean).map((id) => String(id)))];
+  if (!uniqueUserIds.length) return;
+
+  await Notification.insertMany(
+    uniqueUserIds.map((userId) => ({
+      ...payload,
+      userId,
+      isRead: false,
+      createdAt: payload.createdAt || new Date(),
+    }))
+  );
+};
+
 const canAccessIntervention = (intervention, requesterId, requesterRole) => {
   if (!intervention) return false;
   const normalizedRole = normalizeRole(requesterRole);
@@ -54,6 +68,7 @@ module.exports = {
 
       const creator = await User.findById(ownerId).populate("service");
       if (creator && creator.role === "EMPLOYEE") {
+        const admins = await User.find({ role: "ADMIN" }).select("_id");
         const employeeName = creator?.name || "Employe inconnu";
         const concernedTarget =
           (creator?.service && creator.service.name) ||
@@ -61,7 +76,9 @@ module.exports = {
           "Non specifie";
         const interventionDateTime = savedIntervention.createdAt || new Date();
 
-        await Notification.create({
+        await createNotificationsForUsers(
+          admins.map((admin) => admin._id),
+          {
           category: "INTERVENTION_DECLARED",
           title: "Nouvelle declaration d'intervention",
           message:
@@ -81,7 +98,8 @@ module.exports = {
             interventionDateTime,
             lieu,
           },
-        });
+        }
+        );
       }
 
       return res.status(200).json({
@@ -322,8 +340,10 @@ module.exports = {
         );
 
         if (isTechnicianRole(me.role)) {
+          const admins = await User.find({ role: "ADMIN" }).select("_id");
+          const recipients = [inter.createdBy, ...admins.map((admin) => admin._id)];
           const technicianName = me?.name || "Technicien";
-          await Notification.create({
+          await createNotificationsForUsers(recipients, {
             category: "INTERVENTION_REFUSED",
             title: "Refus d'intervention",
             message:
