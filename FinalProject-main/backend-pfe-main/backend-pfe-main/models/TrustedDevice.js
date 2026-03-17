@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const TrustedDeviceSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    deviceId: { type: String, default: "", index: true },
     deviceHash: { type: String, required: true, index: true },
     userAgent: { type: String, default: "" },
     lastIp: { type: String, default: "" },

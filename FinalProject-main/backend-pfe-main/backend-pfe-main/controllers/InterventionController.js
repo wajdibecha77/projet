@@ -9,6 +9,9 @@ const sameId = (a, b) => String(a || "") === String(b || "");
 const TECHNICIAN_ROLES = ["INFORMATICIEN", "ELECTRICIEN", "MECANICIEN", "PLOMBERIE", "TECHNICIEN"];
 
 const isTechnicianRole = (role) => TECHNICIAN_ROLES.includes(normalizeRole(role));
+const isAssignedToRequester = (intervention, requesterId) =>
+  sameId(intervention?.affectedBy, requesterId) ||
+  sameId(intervention?.assignedTo, requesterId);
 
 const createNotificationsForUsers = async (userIds, payload) => {
   const uniqueUserIds = [...new Set((userIds || []).filter(Boolean).map((id) => String(id)))];
@@ -29,7 +32,7 @@ const canAccessIntervention = (intervention, requesterId, requesterRole) => {
   const normalizedRole = normalizeRole(requesterRole);
   if (normalizedRole === "ADMIN") return true;
   if (normalizedRole === "EMPLOYEE") return sameId(intervention.createdBy, requesterId);
-  if (isTechnicianRole(normalizedRole)) return sameId(intervention.affectedBy, requesterId);
+  if (isTechnicianRole(normalizedRole)) return isAssignedToRequester(intervention, requesterId);
   return false;
 };
 
@@ -124,26 +127,19 @@ module.exports = {
 
       let query = {};
       const role = String(me.role || "").toUpperCase();
-      const includeUnassigned =
-        String(req.query?.includeUnassigned || "").toLowerCase() === "true" ||
-        String(req.query?.includeUnassigned || "") === "1";
-
       if (role === "ADMIN") {
         query = {};
       } else if (role === "EMPLOYEE") {
         // Employee/requester: only interventions created by this user.
         query = { createdBy: req.user.id };
       } else if (isTechnicianRole(role)) {
-        // Technician: assigned to me. Optionally include non-assigned/non-terminated for dashboard stats.
-        query = includeUnassigned
-          ? {
-              $or: [
-                { affectedBy: req.user.id },
-                { affectedBy: null, etat: { $ne: "TERMINEE" } },
-                { affectedBy: { $exists: false }, etat: { $ne: "TERMINEE" } },
-              ],
-            }
-          : { affectedBy: req.user.id };
+        // Technician: only interventions assigned to me.
+        query = {
+          $or: [
+            { affectedBy: req.user.id },
+            { assignedTo: req.user.id },
+          ],
+        };
       } else {
         return res.status(403).json({
           message: "Role non autorise",
@@ -152,6 +148,7 @@ module.exports = {
 
       const interventions = await Intervention.find(query)
         .populate("createdBy")
+        .populate("assignedTo")
         .populate("affectedBy")
         .sort({ createdAt: -1 });
 
@@ -304,6 +301,7 @@ module.exports = {
         await Intervention.findByIdAndUpdate(
           { _id: req.params.id },
           {
+            assignedTo: affectedBy,
             affectedBy: affectedBy,
             affectedToUsers: inter.affectedToUsers && inter.affectedToUsers.length > 0 ? [...inter.affectedToUsers, affectedBy] : [affectedBy],
             dateDebut: Date.now(),
@@ -332,6 +330,7 @@ module.exports = {
             $set: {
               dateDebut: null,
               etat: "NON_AFFECTEE",
+              assignedTo: null,
             },
             $unset: {
               affectedBy: "",

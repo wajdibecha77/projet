@@ -5,6 +5,7 @@ const LoginChallengeSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     email: { type: String, required: true, index: true },
 
+    deviceId: { type: String, default: "", index: true },
     deviceHash: { type: String, required: true },
     userAgent: { type: String, default: "" },
 

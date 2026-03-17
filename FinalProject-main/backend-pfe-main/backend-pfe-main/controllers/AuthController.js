@@ -9,7 +9,6 @@ const https = require("https");
 const User = require("../models/User");
 const PasswordResetToken = require("../models/PasswordResetToken");
 const Notification = require("../models/Notification");
-const TrustedDevice = require("../models/TrustedDevice");
 const LoginChallenge = require("../models/LoginChallenge");
 
 const CODE_EXPIRE_MINUTES = 15;
@@ -24,10 +23,9 @@ const randomToken = () => crypto.randomBytes(32).toString("hex");
 
 const formatDateFR = (d) => new Date(d).toLocaleString("fr-FR", { timeZone: "Africa/Tunis" });
 
-const alwaysRequireVerification =
-  String(process.env.ALWAYS_REQUIRE_EMAIL_VERIFICATION || "").toLowerCase() === "true";
 const allowLoginOnSmtpFailure =
   String(process.env.ALLOW_LOGIN_ON_SMTP_FAILURE || "true").toLowerCase() === "true";
+const runtimeVerifiedDevices = new Map();
 
 // -------------------- helpers --------------------
 const getClientIp = (req) => {
@@ -39,7 +37,7 @@ const getClientIp = (req) => {
 };
 
 const getDeviceInfo = (req) => {
-  const ua = String(req.headers["user-agent"] || "");
+  const ua = String(req.body?.deviceInfo?.userAgent || req.headers["user-agent"] || "");
   const r = new UAParser(ua).getResult();
 
   const deviceType = r.device?.type || "desktop";
@@ -62,10 +60,18 @@ const getApproxLocationLabel = (ip) => {
 };
 
 const deviceHashFromReq = (req) => {
-  const ua = String(req.headers["user-agent"] || "");
-  const ip = getClientIp(req);
-  const ipPrefix = ip.includes(".") ? ip.split(".").slice(0, 3).join(".") : ip;
-  return sha256(`${ua}|${ipPrefix}`);
+  const ua = String(req.body?.deviceInfo?.userAgent || req.headers["user-agent"] || "");
+  const deviceId = String(req.body?.deviceInfo?.deviceId || "").trim();
+  return sha256(`${deviceId || "unknown-device"}|${ua}`);
+};
+
+const runtimeVerificationKey = (userId, deviceHash) => `${String(userId)}:${String(deviceHash)}`;
+const isVerifiedInCurrentRuntime = (userId, deviceHash) =>
+  runtimeVerifiedDevices.has(runtimeVerificationKey(userId, deviceHash));
+const markVerifiedInCurrentRuntime = (userId, deviceHash) => {
+  runtimeVerifiedDevices.set(runtimeVerificationKey(userId, deviceHash), {
+    verifiedAt: new Date(),
+  });
 };
 
 const smtpTransporter = () => {
@@ -409,6 +415,7 @@ module.exports = {
       const ip = getClientIp(req);
       const dev = getDeviceInfo(req);
       const deviceHash = deviceHashFromReq(req);
+      const deviceId = String(req.body?.deviceInfo?.deviceId || "").trim();
 
       const coords = req.body?.coords;
 
@@ -428,36 +435,16 @@ module.exports = {
           }`;
       }
 
-      const trusted = await TrustedDevice.findOne({ userId: user._id, deviceHash });
-      const trustDeviceAndLogin = async () => {
-        await TrustedDevice.updateOne(
-          { userId: user._id, deviceHash },
-          {
-            $set: {
-              userId: user._id,
-              deviceHash,
-              userAgent: dev.ua,
-              lastIp: ip,
-              lastLocation: locationLabel || "",
-              lastLoginAt: new Date(),
-            },
-          },
-          { upsert: true }
-        );
-
+      const verifiedInRuntime = isVerifiedInCurrentRuntime(user._id, deviceHash);
+      if (verifiedInRuntime) {
         const token = signJwt(user);
-        return res.status(200).json({ success: true, challengeRequired: false, token, user });
-      };
-
-      // ✅ ALWAYS_REQUIRE_EMAIL_VERIFICATION=true => always send email (never bypass)
-      if (!alwaysRequireVerification && trusted) {
-        trusted.lastIp = ip;
-        trusted.userAgent = dev.ua;
-        trusted.lastLoginAt = new Date();
-        await trusted.save();
-
-        const token = signJwt(user);
-        return res.status(200).json({ success: true, challengeRequired: false, token, user });
+        return res.status(200).json({
+          success: true,
+          challengeRequired: false,
+          verifiedInRuntime: true,
+          token,
+          user,
+        });
       }
 
       const approveToken = randomToken();
@@ -466,6 +453,7 @@ module.exports = {
       const challenge = await LoginChallenge.create({
         userId: user._id,
         email,
+        deviceId,
         deviceHash,
         userAgent: dev.ua,
         ip,
@@ -508,8 +496,7 @@ module.exports = {
         });
       } catch (mailError) {
         if (allowLoginOnSmtpFailure) {
-          console.error("SMTP login alert failed, fallback direct login:", mailError?.message || mailError);
-          return trustDeviceAndLogin();
+          console.error("SMTP login alert failed:", mailError?.message || mailError);
         }
         throw mailError;
       }
@@ -517,6 +504,7 @@ module.exports = {
       return res.status(200).json({
         success: true,
         challengeRequired: true,
+        verifiedInRuntime: false,
         challengeId: String(challenge._id),
         message: "Vérification de connexion requise. Un e-mail vous a été envoyé.",
       });
@@ -618,20 +606,7 @@ module.exports = {
         return res.status(400).json({ success: false, message: "Code invalide." });
       }
 
-      await TrustedDevice.updateOne(
-        { userId: challenge.userId, deviceHash: challenge.deviceHash },
-        {
-          $set: {
-            userId: challenge.userId,
-            deviceHash: challenge.deviceHash,
-            userAgent: challenge.userAgent,
-            lastIp: challenge.ip,
-            lastLocation: challenge.location,
-            lastLoginAt: new Date(),
-          },
-        },
-        { upsert: true }
-      );
+      markVerifiedInCurrentRuntime(challenge.userId, challenge.deviceHash);
 
       challenge.status = "VERIFIED";
       await challenge.save();
@@ -639,7 +614,7 @@ module.exports = {
       const user = await User.findById(challenge.userId);
       const token = signJwt(user);
 
-      return res.status(200).json({ success: true, token, user });
+      return res.status(200).json({ success: true, verifiedInRuntime: true, token, user });
     } catch {
       return res.status(500).json({ success: false, message: "Erreur serveur." });
     }

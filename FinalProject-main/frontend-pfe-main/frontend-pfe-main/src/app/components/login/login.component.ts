@@ -53,6 +53,7 @@ export class LoginComponent implements OnInit {
         this.loading = false;
 
         if (res?.challengeRequired) {
+          this.auth.clearTrustedDevice(this.email);
           this.waitingVerification = true;
           this.challengeId = res.challengeId;
           this.messageFR =
@@ -62,6 +63,7 @@ export class LoginComponent implements OnInit {
         }
 
         if (res?.token) {
+          this.auth.markTrustedDevice(this.email);
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem("role", res?.user?.role || "");
@@ -92,6 +94,7 @@ export class LoginComponent implements OnInit {
         this.loading = false;
 
         if (res?.token) {
+          this.auth.markTrustedDevice(this.email);
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem("role", res?.user?.role || "");

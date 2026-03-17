@@ -54,6 +54,12 @@ const Intervention = new mongoose.Schema({
     required: true
     },
 
+    assignedTo :{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false
+      },
+
     affectedBy :{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

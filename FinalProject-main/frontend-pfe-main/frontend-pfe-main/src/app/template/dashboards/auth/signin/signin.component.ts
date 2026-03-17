@@ -50,6 +50,7 @@ export class SigninComponent implements OnInit {
         this.loading = false;
 
         if (res?.challengeRequired) {
+          this.authService.clearTrustedDevice(this.email);
           this.waitingVerification = true;
           this.challengeId = res.challengeId;
           this.messageFR =
@@ -59,6 +60,7 @@ export class SigninComponent implements OnInit {
         }
 
         if (res?.token) {
+          this.authService.markTrustedDevice(this.email);
           localStorage.setItem("token", res.token);
           localStorage.setItem("user", JSON.stringify(res.user));
           localStorage.setItem("role", res?.user?.role || "");
@@ -114,6 +116,7 @@ export class SigninComponent implements OnInit {
         this.loading = false;
 
         if (res?.token) {
+          this.authService.markTrustedDevice(this.email);
           localStorage.setItem("token", res.token);
           localStorage.setItem("user", JSON.stringify(res.user));
           localStorage.setItem("role", res?.user?.role || "");
